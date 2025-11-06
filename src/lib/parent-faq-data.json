@@ -1,0 +1,28 @@
+
+[
+  {
+    "id": 1,
+    "question": "How can I pay for my child's tuition fees?",
+    "answer": "The university offers several payment methods, including online banking, over-the-counter bank deposits, and payment at the university cashier. For detailed instructions, please visit the Finance Department's page or submit a ticket to the Finance Department."
+  },
+  {
+    "id": 2,
+    "question": "What is the academic calendar for this school year?",
+    "answer": "The official academic calendar, including enrollment dates, holidays, and examination periods, is available on the university website. You can also see upcoming events in the 'Academic Calendar' widget on this dashboard."
+  },
+  {
+    "id": 3,
+    "question": "How can I check my child's academic standing or grades?",
+    "answer": "Due to data privacy regulations (R.A. 10173), student records like grades can only be accessed by the student through their official university portal. We encourage you to have an open conversation with your child about their academic progress."
+  },
+  {
+    "id": 4,
+    "question": "Who can I contact regarding concerns about my child's well-being?",
+    "answer": "The Guidance Office provides counseling and support for all students. You can encourage your child to schedule an appointment with them. For urgent matters, you may contact the Dean's Office of your child's college."
+  },
+  {
+    "id": 5,
+    "question": "What is the university's policy on campus safety and security?",
+    "answer": "The university maintains a 24/7 security team and CCTV monitoring in key areas. All students, staff, and visitors are required to present their ID upon entry. For specific concerns, please contact the Student Affairs Office."
+  }
+]

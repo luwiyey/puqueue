@@ -1,0 +1,437 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the PU Queue system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's university email address.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role (Student, Admin, Staff)."
+        },
+        "theme": {
+            "type": "string",
+            "description": "The user's preferred theme (light, dark, system).",
+            "enum": ["light", "dark", "system"]
+        },
+        "dashboardLayout": {
+            "type": "array",
+            "description": "User's preferred dashboard layout configuration.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "string" },
+                    "visible": { "type": "boolean" }
+                },
+                "required": ["id", "visible"]
+            }
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "role"
+      ]
+    },
+    "Ticket": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Ticket",
+      "type": "object",
+      "description": "Represents a help ticket submitted by a student.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Ticket entity."
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Ticket) The ID of the student who submitted the ticket."
+        },
+        "department": {
+          "type": "string",
+          "description": "Department assigned to the ticket (e.g., IT, Admissions)."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the ticket (e.g., Open, In Progress, Resolved)."
+        },
+        "dateSubmitted": {
+          "type": "string",
+          "description": "Date and time when the ticket was submitted.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the issue."
+        },
+        "conversationId": {
+          "type": "string",
+          "description": "ID for the conversation history collection related to this ticket."
+        },
+        "documentType": {
+            "type": "string",
+            "description": "For Registrar tickets, the specific type of document requested.",
+            "enum": ["TOR", "COR", "CAV", "Good Moral", "Other"]
+        }
+      },
+      "required": [
+        "id",
+        "studentId",
+        "department",
+        "status",
+        "dateSubmitted",
+        "description"
+      ]
+    },
+    "Appointment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Appointment",
+      "type": "object",
+      "description": "Represents an appointment booked by a student.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Appointment entity."
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Appointment) The ID of the student who booked the appointment."
+        },
+        "department": {
+          "type": "string",
+          "description": "Department the appointment is with."
+        },
+        "dateTime": {
+          "type": "string",
+          "description": "The date and time of the appointment.",
+          "format": "date-time"
+        },
+        "type": {
+            "type": "string",
+            "description": "The type of appointment (e.g., 'Virtual', 'In-Person')."
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the appointment (e.g., 'Confirmed', 'Pending')."
+        },
+        "subject": {
+            "type": "string",
+            "description": "The subject or reason for the appointment."
+        },
+        "contactInfo": {
+            "type": "string",
+            "description": "Contact email or phone number for the appointment."
+        }
+      },
+      "required": [
+        "id",
+        "studentId",
+        "department",
+        "dateTime",
+        "type",
+        "status"
+      ]
+    },
+    "KnowledgeBaseDocument": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "KnowledgeBaseDocument",
+      "type": "object",
+      "description": "Represents a document used to train the AI chatbot.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the KnowledgeBaseDocument entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the document."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date the document was uploaded.",
+          "format": "date-time"
+        },
+        "fileType": {
+          "type": "string",
+          "description": "Type of the file (e.g., PDF, CSV, manual)."
+        },
+        "adminId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N KnowledgeBaseDocument) The ID of the admin who uploaded the document."
+        },
+        "content": {
+            "type": "string",
+            "description": "The text content of the document, if not a file."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "uploadDate",
+        "adminId"
+      ]
+    },
+    "Announcement": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Announcement",
+      "type": "object",
+      "description": "Represents an announcement made to students.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Announcement entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the announcement."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the announcement."
+        },
+        "postDate": {
+          "type": "string",
+          "description": "Date the announcement was posted.",
+          "format": "date-time"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Announcement) The ID of the user (admin/staff) who created the announcement."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "postDate",
+        "authorId"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user this notification is for."
+        },
+        "message": {
+          "type": "string",
+          "description": "The content of the notification message."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of notification (e.g., 'ticket', 'appointment')."
+        },
+        "referenceId": {
+          "type": "string",
+          "description": "The ID of the related entity (e.g., ticketId)."
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Whether the user has read the notification."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the notification was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "message",
+        "type",
+        "referenceId",
+        "isRead",
+        "createdAt"
+      ]
+    },
+    "ChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatMessage",
+      "type": "object",
+      "description": "Represents a single message in a conversation.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ChatMessage."
+        },
+        "text": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "sender": {
+          "type": "string",
+          "description": "Who sent the message ('user' or 'bot')."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "When the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "text", "sender", "timestamp"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Path-based ownership ensures only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tickets/{ticketId}",
+        "definition": {
+          "entityName": "Ticket",
+          "schema": {
+            "$ref": "#/backend/entities/Ticket"
+          },
+          "description": "Stores help tickets submitted by students. Path-based ownership ensures only the student and authorized staff/admins can access the ticket. `studentId` within the ticket document guarantees that the ticket is associated with the user identified in the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (student) who owns the ticket."
+            },
+            {
+              "name": "ticketId",
+              "description": "The unique identifier of the ticket."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/appointments/{appointmentId}",
+        "definition": {
+          "entityName": "Appointment",
+          "schema": {
+            "$ref": "#/backend/entities/Appointment"
+          },
+          "description": "Stores appointment bookings made by students. Path-based ownership ensures only the student and authorized staff/admins can access the appointment. `studentId` within the appointment document guarantees that the appointment is associated with the user identified in the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (student) who booked the appointment."
+            },
+            {
+              "name": "appointmentId",
+              "description": "The unique identifier of the appointment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores notifications for individual users. Path-based ownership ensures only the user can access their own notifications.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the notification."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier of the notification."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/users/{userId}/conversations/{conversationId}/messages/{messageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ChatMessage"
+          },
+          "description": "Stores individual messages within a specific conversation for a user. Path-based ownership ensures only the user can access their conversation history.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the conversation."
+            },
+            {
+              "name": "conversationId",
+              "description": "The unique identifier of the conversation session."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique identifier of the message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/knowledge_base_documents/{knowledgeBaseDocumentId}",
+        "definition": {
+          "entityName": "KnowledgeBaseDocument",
+          "schema": {
+            "$ref": "#/backend/entities/KnowledgeBaseDocument"
+          },
+          "description": "Stores documents used to train the AI chatbot. Contains the `adminId` who uploaded the document, ensuring accountability and facilitating authorization for modifications.",
+          "params": [
+            {
+              "name": "knowledgeBaseDocumentId",
+              "description": "The unique identifier of the knowledge base document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/announcements/{announcementId}",
+        "definition": {
+          "entityName": "Announcement",
+          "schema": {
+            "$ref": "#/backend/entities/Announcement"
+          },
+          "description": "Stores announcements made to students.  Contains the `authorId` of the user (admin/staff) who created the announcement, allowing for ownership-based security rules.",
+          "params": [
+            {
+              "name": "announcementId",
+              "description": "The unique identifier of the announcement."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to address the application's requirements for user authentication, AI chatbot integration, appointment booking, ticket tracking, and admin analytics. Key design principles include Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters).\n\n**Authorization Independence:**\n\n*   The primary strategy is to avoid hierarchical authorization dependencies (`get()` calls in security rules).  Since the user document contains role information, and other entities are owned by users (1:N relationships), we can enforce security based on path and the user's `uid`.\n\n**Structural Segregation:**\n\n*   All documents within a collection share the same security requirements. User data is stored separately from other collections like Tickets or Appointments to ensure that access control rules are consistent and easily maintainable.\n\n**Access Modeling:**\n\n*   **Private Data:** `/users/{userId}` path-based ownership is used for user profiles to ensure only the user can access their own data.\n*   **User-Owned Data:**  Hierarchical paths like `/users/{userId}/tickets/{ticketId}` and `/users/{userId}/appointments/{appointmentId}` are used for entities owned by users (Tickets, Appointments), simplifying ownership-based security rules. This eliminates the need for `get()` calls to verify user ownership.\n*   **Admin Data:** KnowledgeBaseDocuments and Announcements are made globally, but they contain the id of the Author that create them, so its ownership can be validated.\n*   **Conversation History:** The path `/users/{userId}/conversations/{conversationId}/messages/{messageId}` stores chat messages. This ensures that only the user can access their own conversation history, maintaining privacy.\n\n**QAPs (Rules are not Filters):**\n\n*   The structure supports secure `list` operations. For example, listing tickets for a specific user is done via `/users/{userId}/tickets`.  Listing all announcements does not require filtering based on roles in the rule itself since it is a global scope collection.\n\n**Invariants:**\n\n*   The structure supports the integrity of ownership, timestamps, and denormalized data. For instance, `studentId` within the `/users/{userId}/tickets` collection guarantees that the ticket is associated with the user identified in the path."
+  }
+}

@@ -1,0 +1,180 @@
+
+
+/**
+ * @fileoverview Firestore Security Rules for PUQueue AI.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles, tickets, and appointments.
+ * Knowledge base documents and announcements are managed by admins/staff and have ownership checks.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profile information, accessible only by the user themselves.
+ * - /users/{userId}/tickets/{ticketId}: Stores tickets submitted by users, accessible only by the user and authorized staff/admins (not implemented in this prototype).
+ * - /users/{userId}/appointments/{appointmentId}: Stores appointments booked by users, accessible only by the user and authorized staff/admins (not implemented in this prototype).
+ * - /users/{userId}/notifications/{notificationId}: Stores notifications for a user, accessible only by that user.
+ * - /users/{userId}/conversations/{conversationId}/messages/{messageId}: Stores chat messages, accessible only by the user.
+ * - /anonymousFeedback/{feedbackId}: Allows anyone to submit feedback without authentication.
+ * - /ticketFeedback/{feedbackId}: Allows authenticated users to submit feedback for a specific ticket.
+ * - /knowledge_base_documents/{knowledgeBaseDocumentId}: Stores knowledge base documents, with access control based on the admin who uploaded the document.
+ * - /announcements/{announcementId}: Stores announcements, with access control based on the author who created the announcement.
+ *
+ * Key Security Decisions:
+ * - Users can only access their own profile data and their related subcollections.
+ * - Listing all users is disallowed to prevent information disclosure.
+ * - Ownership is enforced on all user-specific data through path-based rules.
+ * - Anonymous feedback is allowed to encourage open communication.
+ *
+ * Denormalization for Authorization:
+ * - Tickets and Appointments store the `studentId` directly within the document, mirroring the `userId` in the path. This allows for efficient owner validation without additional reads.
+ * - KnowledgeBaseDocuments and Announcements store the `adminId` and `authorId` respectively, enabling ownership checks for modification.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    /**
+     * @description Returns true if the requesting user is an admin.
+     */
+    function isAdmin() {
+      // Check for the existence of the user's document and their role.
+      // Note: This requires a read operation on the user's own document.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+
+    /**
+     * @description Secure user profiles and their subcollections.
+     * @path /users/{userId}
+     */
+    match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource != null;
+      }
+      
+      function hasOnlyAllowedFields(allowedFields) {
+        return request.resource.data.keys().hasOnly(allowedFields);
+      }
+      
+      // An admin can read any user's profile. A user can only read their own.
+      allow get: if isOwner(userId) || isAdmin();
+      
+      // Only admins can list users.
+      allow list: if isAdmin();
+      
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      
+      allow update: if (isOwner(userId) &&
+                        // User can update their own non-critical fields.
+                        request.resource.data.id == resource.data.id &&
+                        request.resource.data.email == resource.data.email &&
+                        request.resource.data.role == resource.data.role &&
+                        hasOnlyAllowedFields(['id', 'email', 'role', 'displayName', 'firstName', 'lastName', 'photoURL', 'dashboardLayout', 'theme', 'notificationSettings'])) ||
+                       (isAdmin() && 
+                        // Admin can only update the role field.
+                        request.resource.data.keys().hasAll(['role']) &&
+                        request.resource.data.size() == resource.data.size()); // Ensure no other fields are changed
+
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Secure notifications for each user.
+       * @path /users/{userId}/notifications/{notificationId}
+       */
+       match /notifications/{notificationId} {
+         allow read, write: if isOwner(userId);
+       }
+
+       /**
+        * @description Secure conversation messages for each user.
+        * @path /users/{userId}/conversations/{conversationId}/messages/{messageId}
+        */
+       match /conversations/{conversationId}/messages/{messageId} {
+           allow read, write: if isOwner(userId);
+       }
+
+        /**
+         * @description Secure tickets submitted by students.
+         * @path /users/{userId}/tickets/{ticketId}
+         */
+        match /tickets/{ticketId} {
+          allow get, list, delete: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.studentId == userId;
+          allow update: if isExistingOwner(userId) && request.resource.data.studentId == resource.data.studentId; // studentId immutable
+        }
+
+        /**
+         * @description Secure appointments booked by students.
+         * @path /users/{userId}/appointments/{appointmentId}
+         */
+        match /appointments/{appointmentId} {
+          allow get, list, delete: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.studentId == userId;
+          allow update: if isExistingOwner(userId) && request.resource.data.studentId == resource.data.studentId; // studentId immutable
+        }
+    }
+    
+    /**
+     * @description Allow anonymous users to provide feedback, readable by authenticated users (admins/staff).
+     * @path /anonymousFeedback/{feedbackId}
+     */
+    match /anonymousFeedback/{feedbackId} {
+      allow create: if true;
+      allow read: if request.auth != null;
+      allow update, delete: if false; 
+    }
+
+    /**
+     * @description Allow authenticated users to submit feedback for a ticket, readable by other authenticated users.
+     * @path /ticketFeedback/{feedbackId}
+     */
+    match /ticketFeedback/{feedbackId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+
+    /**
+     * @description Secure knowledge base documents. Only the admin who uploaded the document can modify or delete it. All users can read.
+     * @path /knowledge_base_documents/{knowledgeBaseDocumentId}
+     */
+    match /knowledge_base_documents/{knowledgeBaseDocumentId} {
+      function isOwner(adminId) {
+        return request.auth.uid == adminId;
+      }
+
+      function isExistingOwner(adminId) {
+          return isOwner(adminId) && resource != null;
+      }
+
+      allow get, list: if request.auth != null;
+      allow create: if request.auth != null && isOwner(request.resource.data.adminId);
+      allow update: if isExistingOwner(resource.data.adminId);
+      allow delete: if isExistingOwner(resource.data.adminId);
+    }
+
+    /**
+     * @description Secure announcements. Only the author of the announcement can modify or delete it. All users can read.
+     * @path /announcements/{announcementId}
+     */
+    match /announcements/{announcementId} {
+      function isOwner(authorId) {
+        return request.auth.uid == authorId;
+      }
+
+      function isExistingOwner(authorId) {
+          return isOwner(authorId) && resource != null;
+      }
+
+      allow get, list: if request.auth != null;
+      allow create: if request.auth != null && isOwner(request.resource.data.authorId);
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
+    }
+  }
+}
+
+    

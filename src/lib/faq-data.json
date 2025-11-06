@@ -1,0 +1,33 @@
+
+[
+  {
+    "id": 1,
+    "question": "How do I reset my university account password?",
+    "answer": "You can reset your password by visiting the university's IT services portal. Click on 'Forgot Password' and follow the on-screen instructions. You will need access to your registered recovery email or phone number."
+  },
+  {
+    "id": 2,
+    "question": "What are the library's opening hours?",
+    "answer": "The main library is open from 8:00 AM to 12:00 AM, Monday to Friday, and from 10:00 AM to 8:00 PM on weekends. Hours may vary during holidays and exam periods, so please check the library website for the most up-to-date information."
+  },
+  {
+    "id": 3,
+    "question": "How can I book an appointment with an academic advisor?",
+    "answer": "You can book an appointment directly through the PUQueue AI portal. Navigate to the 'Appointments' section, select 'Academic Advising' from the department list, and choose a time slot that works for you."
+  },
+  {
+    "id": 4,
+    "question": "Where can I find information about my financial aid package?",
+    "answer": "Your financial aid information is available on the student self-service portal. You can also submit a ticket to the 'Financial Aid' department through this app for specific questions about your package."
+  },
+  {
+    "id": 5,
+    "question": "How do I submit a maintenance request for my dorm room?",
+    "answer": "For any maintenance issues in your dorm, please submit a ticket under the 'Housing' department. Describe the issue in detail, and a member of the maintenance team will be assigned to your request."
+  },
+  {
+    "id": 6,
+    "question": "What does the AI Chatbot do?",
+    "answer": "The AI Chatbot is designed to provide instant answers to your questions about various university services, including admissions, academics, and IT support. It's available 24/7 to help you find information quickly."
+  }
+]
