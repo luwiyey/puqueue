@@ -15,10 +15,6 @@ import { TicketFeedbackForm } from '@/components/tickets/ticket-feedback-form';
 import { AiReplyGenerator } from '@/components/tickets/ai-reply-generator';
 import { getAuth } from 'firebase/auth';
 
-type TicketDetailPageProps = {
-    params: { ticketId: string };
-};
-
 // This page needs to be dynamically rendered to fetch data for a specific ticket.
 export const dynamic = 'force-dynamic';
 
@@ -60,7 +56,7 @@ async function getTicketData(ticketId: string): Promise<Ticket | null> {
 }
 
 
-export default async function TicketDetailPage({ params }: TicketDetailPageProps) {
+export default async function TicketDetailPage({ params }: { params: { ticketId: string } }) {
     const ticket = await getTicketData(params.ticketId);
 
     if (!ticket) {
